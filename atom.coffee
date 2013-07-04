@@ -115,9 +115,20 @@ atom.canvas.onmouseup = atom.input.onmouseup.bind(atom.input)
 atom.canvas.onmousewheel = atom.input.onmousewheel.bind(atom.input)
 atom.canvas.oncontextmenu = atom.input.oncontextmenu.bind(atom.input)
 
+# upscale the image so it always its always the desired size
+atom.setDesiredSurfaceArea = (desiredSurfaceArea) ->
+  atom.desiredSurfaceArea = desiredSurfaceArea
+  window.onresize()
+
 window.onresize = (e) ->
-  atom.canvas.width = window.innerWidth
-  atom.canvas.height = window.innerHeight
+  upscale = 1
+  if atom.desiredSurfaceArea
+    actualSurfaceArea = window.innerHeight * window.innerWidth
+    upscale = Math.sqrt atom.desiredSurfaceArea / actualSurfaceArea
+  atom.canvas.width = window.innerWidth * upscale
+  atom.canvas.height = window.innerHeight * upscale
+  atom.canvas.style.width = window.innerWidth
+  atom.canvas.style.height = window.innerHeight
   atom.width = atom.canvas.width
   atom.height = atom.canvas.height
 window.onresize()
