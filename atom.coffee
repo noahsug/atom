@@ -64,6 +64,9 @@ atom.input = {
     if @_bindings[atom.button.RIGHT]
       e.stopPropagation()
       e.preventDefault()
+  ontouchstart: (e) ->
+  ontouchmove: (e) ->
+  ontouchend: (e) ->
 }
 
 document.onkeydown = atom.input.onkeydown.bind(atom.input)
@@ -85,6 +88,12 @@ atom.key =
   UP_ARROW: 38
   RIGHT_ARROW: 39
   DOWN_ARROW: 40
+atom.touch =
+  TAP: -10
+  SWIPE_RIGHT: -11
+  SWIPE_LEFT: -12
+  SWIPE_UP: -13
+  SWIPE_DOWN: -14
 
 for c in [65..90]
   atom.key[String.fromCharCode c] = c
