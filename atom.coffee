@@ -20,6 +20,7 @@ atom.input = {
   _down: {}
   _pressed: {}
   _released: []
+  _gesture: []
   mouse: { x:0, y:0 }
 
   bind: (key, action) ->
@@ -64,14 +65,30 @@ atom.input = {
     if @_bindings[atom.button.RIGHT]
       e.stopPropagation()
       e.preventDefault()
+
+  _addTouchToGesture: (e) ->
+    touch = e.targetTouches[0]
+    pos = { x: touch.clientX, y: touch.clientY }
+    @_gesture.push pos
+
   ontouchstart: (e) ->
+    @_gesture = []
+    @_addTouchToGesture e
   ontouchmove: (e) ->
+    @_addTouchToGesture e
   ontouchend: (e) ->
+    e.gesture = @_gesture
+    @onkeydown e
+    @onkeyup e
 }
 
 document.onkeydown = atom.input.onkeydown.bind(atom.input)
 document.onkeyup = atom.input.onkeyup.bind(atom.input)
 document.onmouseup = atom.input.onmouseup.bind(atom.input)
+
+window.addEventListener 'touchstart', atom.input.ontouchstart.bind(atom.input)
+window.addEventListener 'touchmove', atom.input.ontouchmove.bind(atom.input)
+window.addEventListener 'touchend', atom.input.ontouchend.bind(atom.input)
 
 atom.button =
   LEFT: -1
@@ -98,6 +115,20 @@ atom.touch =
 for c in [65..90]
   atom.key[String.fromCharCode c] = c
 
+determineGesture = (gesture) ->
+  if gesture.length is 1
+    return atom.touch.TAP
+  start = gesture[0]
+  end = gesture[gesture.length-1]
+  dx = end.x - start.x
+  dy = end.y - start.y
+  if Math.abs(dx) > Math.abs(dy)
+    if dx > 0 then atom.touch.SWIPE_RIGHT
+    else atom.touch.SWIPE_LEFT
+  else
+    if dy > 0 then atom.touch.SWIPE_DOWN
+    else atom.touch.SWIPE_UP
+
 eventCode = (e) ->
   if e.type == 'keydown' or e.type == 'keyup'
     e.keyCode
@@ -111,6 +142,8 @@ eventCode = (e) ->
       atom.button.WHEELUP
     else
       atom.button.WHEELDOWN
+  else if e.type == 'touchend'
+    determineGesture e.gesture
 
 atom.canvas = document.getElementsByTagName('canvas')[0]
 atom.canvas.style.position = "absolute"
