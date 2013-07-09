@@ -76,6 +76,9 @@ atom.input = {
     @_addTouchToGesture e
   ontouchmove: (e) ->
     @_addTouchToGesture e
+    e.gesture = @_gesture
+    @onkeydown e
+    @onkeyup e
   ontouchend: (e) ->
     e.gesture = @_gesture
     @onkeydown e
@@ -142,7 +145,7 @@ eventCode = (e) ->
       atom.button.WHEELUP
     else
       atom.button.WHEELDOWN
-  else if e.type == 'touchend'
+  else if e.type == 'touchend' or e.type == 'touchmove'
     determineGesture e.gesture
 
 atom.canvas = document.getElementsByTagName('canvas')[0]
