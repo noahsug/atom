@@ -203,6 +203,8 @@ class Game
     @update dt
     @draw()
     atom.input.clearPressed()
+  resize: ->
+    @draw()
 
 atom.Game = Game
 
